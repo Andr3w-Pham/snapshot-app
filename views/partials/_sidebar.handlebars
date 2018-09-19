@@ -1,0 +1,40 @@
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+<!-- [Just Testing Materialize Side Navbar] (Start)  -->
+<nav id="snapshot-nav">
+  <div class="nav-wrapper">
+    <a href="/" class="brand-logo right" id="logo">Snap-Shot</a>
+    <ul id="nav-mobile" class="left">
+      {{#if user}}
+        <li><a href="/posts/index" class="nav-li-1">All Posts</a></li>
+        <li><a href="/posts/upload">Add post</a></li>
+        <!-- <li><a href="/users/logout">Log Out</a></li> -->
+      {{else}}
+        <li><a href="/posts/index" class="nav-li-1">All Posts</a></li>
+        <li><a href="/users/login">Login</a></li>
+        <li><a href="/users/register">Register</a></li>
+      {{/if}}
+    </ul>
+  </div>
+</nav>
+<ul id="slide-out" class="sidenav">
+  <br><br>
+  {{#if user}}
+    <!-- <li><a href="/posts/index">All posts</a></li> -->
+    <!-- <li><a href="/posts/new">Add Post</a></li> -->
+    <li><a href="/users/logout">Log Out</a></li>
+  {{else}}
+    <!-- <li><a href="/posts/index">All posts</a></li>
+    <li><a href="/users/login">Login</a></li>
+    <li><a href="/users/register">Register</a></li> -->
+  {{/if}}
+</ul>
+{{#if user}}
+<a id="sidebar" href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons" id="side-nav">menu</i></a>
+{{/if}}
+<!-- Side Navbar (End)  -->
+<script>
+  $(document).ready(() => {
+    $('.sidenav').sidenav();
+  });
+</script>

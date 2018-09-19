@@ -1,0 +1,25 @@
+#home-cont {
+  text-align: center;
+  float: right;
+}
+
+#snapshot-nav {
+  background-color: blue;
+}
+/*========================================================================
+                            Side Navbar
+==========================================================================*/
+#side-nav {
+  position: fixed;
+  margin-left: 15px;
+  top: 20px;
+  color: white;
+}
+
+.nav-li-1 {
+  margin-left: 50px;
+}
+
+#logo {
+  margin-right: 10px;
+}

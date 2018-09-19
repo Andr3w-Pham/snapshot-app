@@ -1,0 +1,16 @@
+<nav>
+  <div id="snapshot-nav" class="nav-wrapper">
+    <a href="#" class="brand-logo right">Logo</a>
+    <ul id="nav-mobile" class="left">
+    {{#if user}}
+      <li><a href="/posts/index">All posts</a></li>
+      <li><a href="/posts/new">Add post</a></li>
+      <li><a href="/users/logout">Log Out</a></li>
+    {{else}}
+      <li><a href="/posts/index">All posts</a></li>
+      <li><a href="/users/login">Login</a></li>
+      <li><a href="/users/register">Register</a></li>
+    {{/if}}
+    </ul>
+  </div>
+</nav>
