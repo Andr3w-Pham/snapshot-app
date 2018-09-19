@@ -4,6 +4,9 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 // image uploader start
 const multer = require('multer');
+// const GridFsStorage = require('multer-gridfs-storage');
+// const Grid = require('gridfs-stream');
+// const db = require('./config/database');
 const path  = require('path');
 // image uploader end
 
@@ -17,6 +20,37 @@ const Post = mongoose.model('posts');
 
 ///////////////////////////////////////////////////////////////////////////////
 // Set The Storage Engine
+// Create mongo connection
+// const conn = mongoose.createConnection(db.mongoURI);
+
+// Init gfs
+// let gfs;
+
+// conn.once('open', () => {
+//   // Init stream
+//   gfs = Grid(conn.db, mongoose.mongo);
+//   gfs.collection('uploads');
+// });
+
+// Create storage engine
+// const storage = new GridFsStorage({
+//   url: mongoURI,
+//   file: (req, file) => {
+//     return new Promise((resolve, reject) => {
+//       crypto.randomBytes(16, (err, buf) => {
+//         if (err) {
+//           return reject(err);
+//         }
+//         const filename = buf.toString('hex') + path.extname(file.originalname);
+//         const fileInfo = {
+//           filename: filename,
+//           bucketName: 'uploads'
+//         };
+//         resolve(fileInfo);
+//       });
+//     });
+//   }
+// });
 const storage = multer.diskStorage({
   destination: './public/uploads/',
   filename: (req, file, cb) => {
@@ -82,7 +116,7 @@ router.post('/', (req, res) => {
       title: req.body.title,
       description: req.body.description,
       // update user id to the post & saving that to the DB
-      user: req.user.id
+      user: req.user.name
     }
     new Post(newPost)
     .save()
@@ -165,35 +199,35 @@ router.delete('/:id', ensureAuthenticated, (req, res) => {
 })
 ///////////////////////////////////////////////////////////////////////////////
 // Upload to DB
-router.post('/upload', (req, res) => {
+// router.post('/upload', (req, res) => {
 
-  upload(req, res, (err) => {
-    if (err) {
-      console.log('error')
-      res.render('home', {
-        msg: err
-      });
-    } else {
-      // res.send('test');
-      if(req.body.files == undefined) {
-        res.render('home', {
-          msg: 'Error: No file selected'
-        });
-      } else {
-        // save to database
-        let newPost = {
-          files: req.body.files
-        }
-        new Post(newPost)
-        .save()
-        .then (posts => {
-          console.log(posts);
-          res.redirect('/');
-        })
-      }
-    }
-  });
-});
+//   upload(req, res, (err) => {
+//     if (err) {
+//       console.log('error')
+//       res.render('home', {
+//         msg: err
+//       });
+//     } else {
+//       // res.send('test');
+//       if(req.body.files == undefined) {
+//         res.render('home', {
+//           msg: 'Error: No file selected'
+//         });
+//       } else {
+//         // save to database
+//         let newPost = {
+//           files: req.body.files
+//         }
+//         new Post(newPost)
+//         .save()
+//         .then (posts => {
+//           console.log(posts);
+//           res.redirect('/');
+//         })
+//       }
+//     }
+//   });
+// });
 
 ///////////////////////////////////////////////////////////////////////////////
 router.get('/upload', (req, res) => {
@@ -201,23 +235,23 @@ router.get('/upload', (req, res) => {
   res.render('upload');
 });
 // Upload Image Locally
-// router.post('/upload', (req, res) => {
-//   upload(req, res, (err) => {
-//     if(err){
-//       res.render('home', {
-//         msg: err
-//       });
-//     } else {
+router.post('/upload', (req, res) => {
+  upload(req, res, (err) => {
+    if(err){
+      res.render('home', {
+        msg: err
+      });
+    } else {
 
-//         console.log(req.files)
-//         res.render('home', {
-//           msg: 'File Uploaded!',
-//           files: req.files
-//         });
+        console.log(req.files)
+        res.render('home', {
+          msg: 'File Uploaded!',
+          files: req.files
+        });
 
-//     }
-//   });
-// });
+    }
+  });
+});
 
 ////////////////////////////////////////////////////////////////////////////////
 

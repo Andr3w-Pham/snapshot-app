@@ -11,10 +11,6 @@ const PostSchema = new Schema({
     required: true
 
   },
-  postBy: {
-      type: String,
-      required: true
-    },
 //   postBy: {
 //     type: Schema.Types.ObjectId,
 //     ref: 'users'
