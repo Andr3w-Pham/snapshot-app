@@ -110,14 +110,17 @@ router.post('/', (req, res) => {
     });
 
   } else {
+    
     // save to db
     // res.send('passed');
     let newPost = {
       title: req.body.title,
       description: req.body.description,
       // update user id to the post & saving that to the DB
-      user: req.user.name
+      userName: req.user.name,
+      userId: req.user._id
     }
+
     new Post(newPost)
     .save()
     .then(posts => {
@@ -145,8 +148,9 @@ router.get('/:id/edit', ensureAuthenticated, (req, res) => {
     _id: req.params.id
   })
   .then(post => {
+    console.log(req.user._id);
     // if the post does not belong to logged in user
-    if(post.user != req.user.id) {
+    if(post.userId != req.user._id) {
       // redirect back to posts page
       req.flash("error_msg", "Access Denied");
       res.redirect('/posts/index');
@@ -156,6 +160,10 @@ router.get('/:id/edit', ensureAuthenticated, (req, res) => {
          post: post
       });
     }
+  })
+  .catch(err => {
+    console.log(req.user._id);
+    console.log(err)
   })
 });
 
@@ -181,8 +189,9 @@ router.delete('/:id', ensureAuthenticated, (req, res) => {
     _id: req.params.id
   })
   .then(post => {
+    console.log(req.user._id);
     // if the post does not belong to logged in user
-    if(post.user != req.user.id) {
+    if(post.userId != req.user._id) {
       // redirect back to posts page
       req.flash('error_msg', 'Access Denied');
       res.redirect('/posts/index');
@@ -193,7 +202,10 @@ router.delete('/:id', ensureAuthenticated, (req, res) => {
         req.flash('success_msg', 'You have successfully deleted the post');
         res.redirect('/posts/index');
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(req.user._id);
+        console.log(err)
+      }) 
     }
   })
 })
@@ -248,7 +260,6 @@ router.post('/upload', (req, res) => {
           msg: 'File Uploaded!',
           files: req.files
         });
-
     }
   });
 });

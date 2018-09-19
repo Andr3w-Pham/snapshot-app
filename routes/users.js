@@ -68,8 +68,10 @@ router.post('/register', (req, res) => {
             new User(newUser).save()
               .then(users => {
                 // redirect to home page
+                passport.authenticate('local')(req, res, () => {
                 res.redirect('/');
               })
+            })
               .catch(err => console.log(err));
           });
         });
