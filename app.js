@@ -21,6 +21,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 
 const passport = require('passport');
+const Instafeed = require("instafeed");
 
 // bring in the helper ensure authenticated function
 const {ensureAuthenticated} = require('./helper/auth')
@@ -29,55 +30,29 @@ const db = require('./config/database')
 // if on production use production port else use 3000
 const port = process.env.PORT || 3000;
 
+// hbs helper
+const { truncate, formatDate } = require('./helper/hbs')
+
+// require model
+require("./models/User");
+require("./models/Post");
+
 // Load routes
+const index = require("./routes/index");
 const users = require('./routes/users');
 const posts = require('./routes/posts');
-// Load passport config
-require('./config/passport')(passport);
 
-// ///////////////////////////////////////////////////////////////////////////////
-// // Set The Storage Engine
-// const storage = multer.diskStorage({
-//   destination: './public/uploads/',
-//   filename: (req, file, cb) => {
-//     cb(null,file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-//   }
-// });
+// load passport middleware
+require("./config/passport")(passport);
+// load routes
+const auth = require("./routes/auth");
 
-// // Init Upload
-// const upload = multer({
-//   storage: storage,
-//   limits:{fileSize: 1000000},
-//   fileFilter: (req, file, cb) => {
-//     checkFileType(file, cb);
-//   }
-// }).array('myImage', 10);
-
-// // Check File Type
-// const checkFileType = (file, cb) => {
-//   // Allowed ext
-//   const filetypes = /jpeg|jpg|png|gif/;
-//   // Check ext
-//   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-//   // Check mime
-//   const mimetype = filetypes.test(file.mimetype);
-
-//   if(mimetype && extname){
-//     return cb(null,true);
-//   } else {
-//     cb('Error: Images Only!');
-//   }
-// }
-// ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // connect to the mongo // Db
 mongoose.connect(db.mongoURI, {useNewUrlParser: true})
 .then(() => console.log('Connected to DB'))
 .catch((err) => console.log(err));
-
-
 
 //////////////////////////////////////////////////////////////
 // ALL Middlewaress Starts here
@@ -90,7 +65,17 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 // middleware for express handlebars
-app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.engine(
+  "handlebars",
+  exphbs({
+    // include the handlbar helpers in the middleware
+    helpers: {
+      truncate: truncate,
+      formatDate: formatDate
+    },
+    defaultLayout: "main"
+  })
+);
 app.set('view engine', 'handlebars');
 
 // override with POST having ?_method=DELETE
@@ -124,42 +109,13 @@ app.use((req, res, next) => {
 
 // End of all Middlewares
 ////////////////////////////////////////////////////////////////////////////////
-app.get('/', (req, res) => {
-  // res.send('Hello World!');
-  res.render('home');
-});
-// About page
-app.get('/about', (req, res) => {
-  // res.send('about');
-  res.render('about');
-});
-////////////////////////////////////////////////////////////////////////////////
-
 
 // Whenever you hit a route called /users it goes and look for the variable users [const users = require('./routes/users')]
+app.use("/", index);
+app.use("/auth", auth);
 app.use('/users', users);
 app.use('/posts', posts);
 
-///////////////////////////////////////////////////////////////////////////////
-
-// Upload Image Locally
-// app.post('/upload', (req, res) => {
-//   upload(req, res, (err) => {
-//     if(err){
-//       res.render('home', {
-//         msg: err
-//       });
-//     } else {
-//
-//         console.log(req.files)
-//         res.render('home', {
-//           msg: 'File Uploaded!',
-//           files: req.files
-//         });
-//
-//     }
-//   });
-// });
 
 
 // start a server

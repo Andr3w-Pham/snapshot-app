@@ -1,14 +1,13 @@
 <nav>
   <div id="snapshot-nav" class="nav-wrapper">
-    <a href="#" class="brand-logo right">Logo</a>
+    <a href="/" class="brand-logo right">SnapShot</a>
     <ul id="nav-mobile" class="left">
     {{#if user}}
-      <li><a href="/posts/index">All posts</a></li>
-      <li><a href="/posts/new">Add post</a></li>
-      <li><a href="/users/logout">Log Out</a></li>
+
     {{else}}
-      <li><a href="/posts/index">All posts</a></li>
-      <li><a href="/users/login">Login</a></li>
+      <li><a href="/posts/index">All Posts</a></li>
+      <li><a id="g-signin" href="/auth/google"><i class="fab fa-google-plus"></i></a></li>
+      <li><a href="/users/login">Log In</a></li>
       <li><a href="/users/register">Register</a></li>
     {{/if}}
     </ul>

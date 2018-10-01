@@ -1,0 +1,27 @@
+<h3>{{post.title}}</h3>
+<div class="row">
+  <div class="col s8">
+    <div class="card">
+      <h5>{{formatDate story.date 'MMMM Do YYYY'}}</h5>
+      <div class="card-content">
+      {{#each files}}
+        <div class="col-md-4">
+          <div class="card">
+              <img src="uploads/{{filename}}" alt="" class="responsive-img">
+          </div>
+        </div>
+      {{/each}}
+      </div>
+    </div>
+  </div>
+
+  <div class="col s4">
+    <div class="card">
+      <p>{{post.user.name}}</p>
+      <div class="card-content">
+      {{!-- <img src="#" alt="user image" class="circle responsive-img"> --}}
+      <a href="/posts/user/{{post.user.id}}">More from {{post.user.name}}</a>
+      </div>
+    </div>
+  </div>
+</div>

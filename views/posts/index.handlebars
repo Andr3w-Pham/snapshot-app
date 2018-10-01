@@ -1,27 +1,22 @@
-{{#each posts}}
-  <div class="row">
-    <div class="col s3">
+<h1>Posts</h1>
+<div class="row">
+  {{#each posts}}
+    <div class="col s12 m4">
       <div class="card">
-        <h4>{{title}}</h4>
-        <p>{{description}}</p>
-        <p>by {{userName}}</p>
-        <br>
-        {{#each files}}
-          <div class="col-md-4">
-            <div class="card">
-                <img src="uploads/{{filename}}" alt="" class="responsive-img">
-            </div>
+        <div class="card-content center-align">
+          <h5>{{title}}</h5>
+          {{!-- <p class="story-text">{{truncate description 100}}</p> --}}
+          <br>
+          <div class="chip">
+            <p>{{user.name}} {{user.lastName}}</p>
           </div>
-        {{/each}}
-        <br><br>
-        <form class="" action="/posts/{{id}}?_method=DELETE" method="post">
-          <button class="btn black"><a href="/posts/{{id}}/edit">Edit</a></button>
-          <input type="hidden" name="_method" value="DELETE">
-          <button class="waves-effect waves-light btn" type="submit" name="button">Delete</button>
-        </form>
+        </div>
+        <div class="card-action center-align">
+          <a class="btn grey" href="/posts/show/{{id}}">View More</a>
+        </div>
       </div>
     </div>
-  </div>
-{{else}}
-    <h1>No Posts Found</h1>
-{{/each}}
+  {{else}}
+    <p>No Posts found</p>
+  {{/each}}
+</div>

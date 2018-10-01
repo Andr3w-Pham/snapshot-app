@@ -1,0 +1,30 @@
+<h4>Your Posts</h4>
+{{#if posts}}
+  <table class="centered responsive-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Date</th>
+        <th>Edit</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each posts}}
+        <tr>
+          <td><a href="/posts/show/{{id}}">Show</a></td>
+          <td>{{formatDate data 'MMMM Do YYYY'}}</td>
+          <td><button class="btn white"><a href="/posts/{{id}}/edit"><i class="fas fa-edit"></i></a></button></td>
+          <td>
+            <form action="/posts/{{id}}?_method=DELETE" method="post" id="delete-form">
+              <input type="hidden" name="_method" value='DELETE'>
+              <button type="submit" class="btn red"><i class="fas fa-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+{{else}}
+  <p>{{user.name}} {{user.lastName}}, you did not create any posts yet.</p>
+{{/if}}

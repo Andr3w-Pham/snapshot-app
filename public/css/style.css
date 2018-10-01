@@ -9,11 +9,9 @@
 /*========================================================================
                             Side Navbar
 ==========================================================================*/
-#side-nav {
-  position: fixed;
-  margin-left: 15px;
-  top: 20px;
-  color: white;
+#fixed-left {
+  right: auto;
+  margin-left: 5%;
 }
 
 .nav-li-1 {

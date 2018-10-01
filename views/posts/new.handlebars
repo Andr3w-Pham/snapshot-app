@@ -1,23 +1,20 @@
-<div class="container">
+{{!-- <div class="container">
   <h1>Add Post</h1>
-
-  {{#each errors}}
-    <h1>{{text}}</h1>
-  {{else}}
-  {{/each}}
   <div class="card">
     <div class="card-content">
       <div class="row">
         <form class="col s12" action="/posts" method="post">
           <div class="row">
             <div class="input-field col s12">
-              <input placeholder="Title" id="title" type="text" class="validate" name="title" value="{{title}}" required>
+              <input placeholder="Title" id="title" type="text" class="validate" name="title" value="{{title}}"
+                required>
               <label for="title">Title</label>
             </div>
           </div>
           <div class="row">
             <div class="input-field col s6">
-              <input placeholder="Title" id="description" type="text" class="validate" name="description" value="{{description}}" required>
+              <input placeholder="Description" id="description" type="text" class="validate" name="description" value="{{description}}"
+                required>
 
               <label for="description">Description</label>
             </div>
@@ -32,4 +29,20 @@
       </div>
     </div>
   </div>
-</div>
+</div> --}}
+
+
+<h1>File Upload</h1>
+<form action="/posts/upload" method="POST" enctype="multipart/form-data">
+  <div class="file-field input-field">
+    <div class="btn">
+      <span>File</span>
+        <input type="file" name="myImage" multiple>
+    </div>
+    <div class="file-path-wrapper">
+      <input class="file-path validate" type="text">
+    </div>
+  </div>
+  <button class="btn waves-effect waves-light" type="submit" name="action">Submit
+ </button>
+</form>

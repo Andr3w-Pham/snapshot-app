@@ -2,55 +2,15 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
-// image uploader start
 const multer = require('multer');
-// const GridFsStorage = require('multer-gridfs-storage');
-// const Grid = require('gridfs-stream');
-// const db = require('./config/database');
 const path  = require('path');
-// image uploader end
-
 // bring in the helper ensure authenticated function
 const {ensureAuthenticated} = require('../helper/auth')
-
-// Require model
-require('../models/Post')
-// Create user model
+const User = mongoose.model('users');
 const Post = mongoose.model('posts');
 
-///////////////////////////////////////////////////////////////////////////////
-// Set The Storage Engine
-// Create mongo connection
-// const conn = mongoose.createConnection(db.mongoURI);
-
-// Init gfs
-// let gfs;
-
-// conn.once('open', () => {
-//   // Init stream
-//   gfs = Grid(conn.db, mongoose.mongo);
-//   gfs.collection('uploads');
-// });
-
+//////////////
 // Create storage engine
-// const storage = new GridFsStorage({
-//   url: mongoURI,
-//   file: (req, file) => {
-//     return new Promise((resolve, reject) => {
-//       crypto.randomBytes(16, (err, buf) => {
-//         if (err) {
-//           return reject(err);
-//         }
-//         const filename = buf.toString('hex') + path.extname(file.originalname);
-//         const fileInfo = {
-//           filename: filename,
-//           bucketName: 'uploads'
-//         };
-//         resolve(fileInfo);
-//       });
-//     });
-//   }
-// });
 const storage = multer.diskStorage({
   destination: './public/uploads/',
   filename: (req, file, cb) => {
@@ -69,12 +29,12 @@ const upload = multer({
 
 // Check File Type
 const checkFileType = (file, cb) => {
-  // Allowed ext
-  const filetypes = /jpeg|jpg|png|gif/;
-  // Check ext
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  // Check mime
-  const mimetype = filetypes.test(file.mimetype);
+// Allowed ext
+const filetypes = /jpeg|jpg|png|gif/;
+// Check ext
+const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+// Check mime
+const mimetype = filetypes.test(file.mimetype);
 
   if(mimetype && extname){
     return cb(null,true);
@@ -85,62 +45,93 @@ const checkFileType = (file, cb) => {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 router.use(express.static('public'));
 
+// // Upload to DB
+router.post('/upload', (req, res) => {
+
+  upload(req, res, (err) => {
+    if (err) {
+      console.log('error from upload fucntion')
+      res.render('/dashboard', {
+        msg: err
+      });
+    } else {
+      // res.send('test');
+      if(req.files == undefined) {
+        res.render('posts/upload', {
+          msg: 'Error: No file selected'
+        });
+      } else {
+        // save to database
+        let newPost = {
+          files: req.files,
+          user: req.user.id
+        }
+        new Post(newPost)
+        .save()
+        .then (posts => {
+          console.log('posted')
+          // console.log(blogs);
+          res.redirect('posts/index');
+        })
+      }
+    }
+  });
+});
+
+/////
+router.get('/index/upload', (req, res) => {
+  Post.find()
+   .then(posts => {
+     console.log('found posts');
+     console.log(posts);
+     res.render('/dashboard', {
+       posts: posts
+     });
+   })
+   .catch(err => console.log(err));
+});
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+/////////////
+
+
 // add form
 router.get('/new', ensureAuthenticated, (req, res) => {
   res.render('posts/new')
 })
 
 //post route to save to the DB
-router.post('/', (req, res) => {
-  console.log('in the post route');
-  console.log(req.body);
-  // res.send('ok');
-  let errors = [];
-  if (!req.body.title) {
-    errors.push({text: "Title must be present"});
-  }
-  if (!req.body.description) {
-    errors.push({text: "Description must be present"});
-  }
-  if (errors.length > 0) {
-    res.render('posts/new', {
-      title: req.body.title,
-      description: req.body.description,
-      errors: errors,
-    });
+// router.post('/', (req, res) => {
 
-  } else {
-    
-    // save to db
-    // res.send('passed');
-    let newPost = {
-      title: req.body.title,
-      description: req.body.description,
-      // update user id to the post & saving that to the DB
-      userName: req.user.name,
-      userId: req.user._id
-    }
+//     let newPost = {
+//       title: req.body.title,
+//       description: req.body.description,
+//       // update user id to the post & saving that to the DB
+//       files: req.files,
+//       user: req.user.id
+//     }
 
-    new Post(newPost)
-    .save()
-    .then(posts => {
-      console.log(posts)
-      res.redirect('/posts/index');
-    })
-    .catch(err => console.log(err));
-  }
-})
-// show all posts from database
+//     new Post(newPost)
+//     .save()
+//     .then(posts => {
+//       console.log(posts)
+//       res.redirect('/dashboard');
+//     })
+//     .catch(err => console.log(err));
+  
+// })
+
+// Posts Index
 router.get('/index', (req, res) => {
   Post.find()
-  .then(posts => {
-
-    console.log(posts);
-    res.render('posts/index', {
-      posts:posts
+    .populate('user')
+    .sort({date: 'desc'})
+    .then(posts => {
+      res.render('posts/index', {
+        posts: posts
+      });
     });
-  })
-  .catch(err => console.log(err));
 });
 
 router.get('/:id/edit', ensureAuthenticated, (req, res) => {
@@ -148,9 +139,9 @@ router.get('/:id/edit', ensureAuthenticated, (req, res) => {
     _id: req.params.id
   })
   .then(post => {
-    console.log(req.user._id);
+    console.log(req.user.id);
     // if the post does not belong to logged in user
-    if(post.userId != req.user._id) {
+    if(post.user != req.user.id) {
       // redirect back to posts page
       req.flash("error_msg", "Access Denied");
       res.redirect('/posts/index');
@@ -177,11 +168,38 @@ router.put('/:id', (req, res) => {
     post.description = req.body.description
     // save the updated post
     post.save()
-      .then(() => res.redirect('/posts/index'))
+      .then(() => res.redirect('/dashboard'))
       .catch((err) => console.log(err));
   });
 
 });
+
+router.get('/show/:id', (req, res) => {
+  Post.findOne({
+    _id: req.params.id
+  })
+  // bring in user info from collection to access image, firstname & lastname
+  .populate('user')
+  .then(post => {
+    console.log(post);
+    res.render('posts/show', {
+      post:post
+    })
+  })
+  .catch(err => console.log(err));
+});
+
+// List posts from a user
+router.get('/user/:userId', (req, res) => {
+  Post.find({user: req.params.userId})
+    .populate('user')
+    .then(posts => {
+      res.render('posts/index', {
+        posts:posts 
+      })
+    })
+    .catch(err => console.log(err));
+})
 
 // Delete the post
 router.delete('/:id', ensureAuthenticated, (req, res) => {
@@ -189,9 +207,9 @@ router.delete('/:id', ensureAuthenticated, (req, res) => {
     _id: req.params.id
   })
   .then(post => {
-    console.log(req.user._id);
+    console.log(req.user.id);
     // if the post does not belong to logged in user
-    if(post.userId != req.user._id) {
+    if(post.user != req.user.id) {
       // redirect back to posts page
       req.flash('error_msg', 'Access Denied');
       res.redirect('/posts/index');
@@ -200,70 +218,16 @@ router.delete('/:id', ensureAuthenticated, (req, res) => {
       post.remove()
       .then(() => {
         req.flash('success_msg', 'You have successfully deleted the post');
-        res.redirect('/posts/index');
+        res.redirect('/dashboard');
       })
       .catch(err => {
-        console.log(req.user._id);
+        console.log(req.user.id);
         console.log(err)
       }) 
     }
   })
 })
-///////////////////////////////////////////////////////////////////////////////
-// Upload to DB
-// router.post('/upload', (req, res) => {
 
-//   upload(req, res, (err) => {
-//     if (err) {
-//       console.log('error')
-//       res.render('home', {
-//         msg: err
-//       });
-//     } else {
-//       // res.send('test');
-//       if(req.body.files == undefined) {
-//         res.render('home', {
-//           msg: 'Error: No file selected'
-//         });
-//       } else {
-//         // save to database
-//         let newPost = {
-//           files: req.body.files
-//         }
-//         new Post(newPost)
-//         .save()
-//         .then (posts => {
-//           console.log(posts);
-//           res.redirect('/');
-//         })
-//       }
-//     }
-//   });
-// });
-
-///////////////////////////////////////////////////////////////////////////////
-router.get('/upload', (req, res) => {
-  // res.send('Hello World!');
-  res.render('upload');
-});
-// Upload Image Locally
-router.post('/upload', (req, res) => {
-  upload(req, res, (err) => {
-    if(err){
-      res.render('home', {
-        msg: err
-      });
-    } else {
-
-        console.log(req.files)
-        res.render('home', {
-          msg: 'File Uploaded!',
-          files: req.files
-        });
-    }
-  });
-});
-
-////////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////////
 
 module.exports = router;

@@ -1,0 +1,29 @@
+<ul id="slide-out" class="sidenav">
+  <li>
+    <div class="user-view">
+      
+    </div>
+  </li>
+  <br><br>
+  <li><a href="/dashboard">My Posts</a></li>
+  <div class="divider"></div>
+
+<ul>
+    <li><a href="/posts/index">View Posts</a></li>
+</ul>
+    <li><div class="divider"></div></li>
+    {{!-- <li><a href="/users/logout">Logout</a></li> --}}
+    <li><a href="/auth/logout">Log Out</a></li>
+</ul>
+<div id="fixed-left" class="fixed-action-btn">
+  <a href="#" data-target="slide-out" class="sidenav-trigger btn-floating btn-large waves-effect waves-light blue"><i class="fas fa-user-alt"></i></a>
+</div>
+
+  
+
+<!-- Side Navbar (End)  -->
+<script>
+  $(document).ready(() => {
+    $('.sidenav').sidenav();
+  });
+</script>
