@@ -51,13 +51,13 @@ router.post('/upload', (req, res) => {
   upload(req, res, (err) => {
     if (err) {
       console.log('error from upload fucntion')
-      res.render('/dashboard', {
+      res.render('posts/new', {
         msg: err
       });
     } else {
       // res.send('test');
       if(req.files == undefined) {
-        res.render('posts/upload', {
+        res.render('posts/new', {
           msg: 'Error: No file selected'
         });
       } else {
@@ -71,7 +71,7 @@ router.post('/upload', (req, res) => {
         .then (posts => {
           console.log('posted')
           // console.log(blogs);
-          res.redirect('posts/index');
+          res.redirect('/posts/index');
         })
       }
     }
@@ -79,18 +79,21 @@ router.post('/upload', (req, res) => {
 });
 
 /////
-router.get('/index/upload', (req, res) => {
+router.get('/index', (req, res) => {
   Post.find()
+  .populate('user')
+  .sort({date: 'desc'})
    .then(posts => {
      console.log('found posts');
      console.log(posts);
-     res.render('/dashboard', {
+     res.render('posts/index', {
        posts: posts
      });
    })
    .catch(err => console.log(err));
 });
 
+// End of upload to DB
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 /////////////
@@ -123,16 +126,16 @@ router.get('/new', ensureAuthenticated, (req, res) => {
 // })
 
 // Posts Index
-router.get('/index', (req, res) => {
-  Post.find()
-    .populate('user')
-    .sort({date: 'desc'})
-    .then(posts => {
-      res.render('posts/index', {
-        posts: posts
-      });
-    });
-});
+// router.get('/index', (req, res) => {
+//   Post.find()
+//     .populate('user')
+//     .sort({date: 'desc'})
+//     .then(posts => {
+//       res.render('posts/index', {
+//         posts: posts
+//       });
+//     });
+// });
 
 router.get('/:id/edit', ensureAuthenticated, (req, res) => {
   Post.findById({
